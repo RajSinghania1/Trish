@@ -8,17 +8,48 @@
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
+    "platforms": ["ios", "android", "web"],
+    "privacy": "public",
+    "description": "A modern dating app with secure wallet system and real-time messaging",
+    "githubUrl": "https://github.com/yourusername/trish-dating-app",
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.yourcompany.trish",
+      "buildNumber": "1.0.0"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/images/icon.png",
+        "backgroundColor": "#E94E87"
+      },
+      "package": "com.yourcompany.trish",
+      "versionCode": 1
     },
     "web": {
       "bundler": "metro",
       "output": "single",
-      "favicon": "./assets/images/favicon.png"
+      "favicon": "./assets/images/favicon.png",
+      "name": "Trish - Dating App",
+      "shortName": "Trish",
+      "lang": "en",
+      "scope": "/",
+      "themeColor": "#E94E87",
+      "backgroundColor": "#F8FAFC",
+      "display": "standalone",
+      "orientation": "portrait",
+      "startUrl": "/"
     },
     "plugins": ["expo-router", "expo-font", "expo-web-browser"],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "your-eas-project-id"
+      }
     }
   }
 }
