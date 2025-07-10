@@ -17,7 +17,7 @@
     "submit:android": "eas submit --platform android",
     "preview": "eas build --profile preview",
     "deploy:web": "expo export --platform web && npx serve dist",
-    "clean": "expo r -c",
+    "clean": "expo start --clear",
     "prebuild": "expo prebuild --clean",
     "lint": "expo lint"
   },
