@@ -11,8 +11,12 @@ import {
   Inter_700Bold,
 } from '@expo-google-fonts/inter';
 import * as SplashScreen from 'expo-splash-screen';
+import { Platform } from 'react-native';
 
-SplashScreen.preventAutoHideAsync();
+// Only prevent auto hide on native platforms
+if (Platform.OS !== 'web') {
+  SplashScreen.preventAutoHideAsync();
+}
 
 export default function RootLayout() {
   useFrameworkReady();
@@ -25,12 +29,13 @@ export default function RootLayout() {
   });
 
   useEffect(() => {
-    if (fontsLoaded || fontError) {
+    if ((fontsLoaded || fontError) && Platform.OS !== 'web') {
       SplashScreen.hideAsync();
     }
   }, [fontsLoaded, fontError]);
 
-  if (!fontsLoaded && !fontError) {
+  // Only show loading on native platforms
+  if (!fontsLoaded && !fontError && Platform.OS !== 'web') {
     return null;
   }
 

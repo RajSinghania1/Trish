@@ -37,7 +37,12 @@
       "backgroundColor": "#F8FAFC",
       "display": "standalone",
       "orientation": "portrait",
-      "startUrl": "/"
+      "startUrl": "/",
+      "build": {
+        "babel": {
+          "include": ["@expo/vector-icons"]
+        }
+      }
     },
     "plugins": ["expo-router", "expo-font", "expo-web-browser"],
     "experiments": {

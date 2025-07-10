@@ -2,13 +2,17 @@ import { useEffect } from 'react';
 import { router, useRootNavigationState } from 'expo-router';
 import { View, StyleSheet } from 'react-native';
 import { useAuth } from '@/contexts/AuthContext';
+import { Platform } from 'react-native';
 
 export default function Index() {
   const rootNavigationState = useRootNavigationState();
   const { session, loading } = useAuth();
 
   useEffect(() => {
-    if (rootNavigationState?.key && !loading) {
+    // On web, we need to be more aggressive about navigation
+    const shouldNavigate = Platform.OS === 'web' ? !loading : (rootNavigationState?.key && !loading);
+    
+    if (shouldNavigate) {
       if (session) {
         // User is authenticated, go to main app
         router.replace('/(tabs)');

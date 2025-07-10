@@ -9,7 +9,7 @@
     "start:web": "expo start --web",
     "start:ios": "expo start --ios",
     "start:android": "expo start --android",
-    "build:web": "expo export --platform web",
+    "build:web": "EXPO_NO_TELEMETRY=1 expo export --platform web --clear",
     "build:ios": "eas build --platform ios",
     "build:android": "eas build --platform android",
     "build:all": "eas build --platform all",
@@ -17,6 +17,8 @@
     "submit:android": "eas submit --platform android",
     "preview": "eas build --profile preview",
     "deploy:web": "expo export --platform web && npx serve dist",
+    "clean": "expo r -c",
+    "prebuild": "expo prebuild --clean",
     "lint": "expo lint"
   },
   "dependencies": {
