@@ -21,7 +21,6 @@ interface Photo {
 export default function PhotoUploadScreen() {
   const [photos, setPhotos] = useState<Photo[]>([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     requestPermissions();
@@ -162,11 +161,10 @@ export default function PhotoUploadScreen() {
 
   const handleContinue = () => {
     if (photos.length < MIN_PHOTOS) {
-      setError(`Please upload at least ${MIN_PHOTOS} photos to continue.`);
+      Alert.alert('Error', `Please upload at least ${MIN_PHOTOS} photos to continue.`);
       return;
     }
 
-    setError(null);
     // Save photos to AsyncStorage for later Supabase upload
     savePhotosData();
     router.push('/onboarding/date-of-birth');
@@ -369,7 +367,7 @@ export default function PhotoUploadScreen() {
             styles.continueButtonText,
             photos.length >= MIN_PHOTOS ? styles.continueButtonTextActive : styles.continueButtonTextInactive
           ]}>
-            Continue
+            {loading ? 'Processing...' : 'Continue'}
           </Text>
         </TouchableOpacity>
         <TouchableOpacity onPress={handleSkip}>
