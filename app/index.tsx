@@ -28,17 +28,69 @@ export default function Index() {
       // Check if profile is complete
       const isComplete = profile.name && 
                         profile.age && 
-                        profile.interests?.length >= 3 && 
-                        profile.images?.length >= 3;
+                        profile.interests?.length >= 1 && 
+                        profile.images?.length >= 1;
 
       if (isComplete) {
         router.replace('/(tabs)');
       } else {
-        router.replace('/onboarding/photo-upload');
+        // For demo purposes, create a basic profile and go to main app
+        await createBasicProfile(user.id);
+        router.replace('/(tabs)');
       }
     } catch (error) {
       console.error('Error checking onboarding status:', error);
-      router.replace('/onboarding/photo-upload');
+      // Create basic profile and continue to main app
+      if (user?.id) {
+        await createBasicProfile(user.id);
+      }
+      router.replace('/(tabs)');
+    }
+  };
+
+  const createBasicProfile = async (userId: string) => {
+    try {
+      const defaultName = user?.email?.split('@')[0]?.replace(/[^a-zA-Z0-9]/g, '') || 'User';
+      
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .upsert({
+          id: userId,
+          email: user?.email || '',
+          name: defaultName,
+          age: 25,
+          location: 'New York, NY',
+          bio: 'Welcome to my profile!',
+          interests: ['Photography', 'Travel', 'Coffee'],
+          images: ['https://images.pexels.com/photos/1130626/pexels-photo-1130626.jpeg?auto=compress&cs=tinysrgb&w=400'],
+          superlikes_count: 5,
+        }, {
+          onConflict: 'id'
+        });
+
+      if (!profileError) {
+        // Create wallet with initial balance
+        await supabase
+          .from('wallets')
+          .upsert({
+            user_id: userId,
+            balance: 100
+          }, {
+            onConflict: 'user_id'
+          });
+
+        // Add welcome transaction
+        await supabase
+          .from('wallet_transactions')
+          .insert({
+            user_id: userId,
+            amount: 100,
+            description: 'Welcome bonus',
+            transaction_type: 'credit'
+          });
+      }
+    } catch (error) {
+      console.error('Error creating basic profile:', error);
     }
   };
 
