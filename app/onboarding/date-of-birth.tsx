@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Platform, Alert } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Platform, Alert, Modal } from 'react-native';
 import { router } from 'expo-router';
 import { ChevronLeft, Calendar, CircleAlert as AlertCircle, CircleCheck as CheckCircle } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import DateTimePicker from '@react-native-community/datetimepicker';
+import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const MIN_AGE = 18;
@@ -11,7 +11,7 @@ const MAX_AGE = 100;
 
 export default function DateOfBirthScreen() {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-  const [showPicker, setShowPicker] = useState(Platform.OS === 'ios');
+  const [showPicker, setShowPicker] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -62,8 +62,8 @@ export default function DateOfBirthScreen() {
     return null;
   };
 
-  const handleDateChange = (event: any, date?: Date) => {
-    if (Platform.OS === 'android' || Platform.OS === 'web') {
+  const handleDateChange = (event: DateTimePickerEvent, date?: Date) => {
+    if (Platform.OS === 'android') {
       setShowPicker(false);
     }
     
@@ -79,6 +79,7 @@ export default function DateOfBirthScreen() {
   };
 
   const showDatePicker = () => {
+    console.log('Date picker button clicked');
     setShowPicker(true);
   };
 
@@ -241,25 +242,57 @@ export default function DateOfBirthScreen() {
         </View>
 
         {/* Date Picker */}
-        {showPicker && (
+        {showPicker && Platform.OS === 'ios' && (
           <DateTimePicker
             value={selectedDate || getMaxDate()}
             mode="date"
-            display={Platform.OS === 'ios' ? 'spinner' : Platform.OS === 'web' ? 'default' : 'default'}
+            display="spinner"
             onChange={handleDateChange}
             maximumDate={getMaxDate()}
             minimumDate={getMinDate()}
-            style={Platform.OS === 'ios' ? styles.iosPicker : undefined}
+            style={styles.iosPicker}
           />
         )}
 
-        {Platform.OS === 'ios' && showPicker && (
+        {showPicker && Platform.OS === 'ios' && (
           <TouchableOpacity
             style={styles.doneButton}
             onPress={() => setShowPicker(false)}
           >
             <Text style={styles.doneButtonText}>Done</Text>
           </TouchableOpacity>
+        )}
+
+        {/* Android/Web Date Picker Modal */}
+        {showPicker && Platform.OS !== 'ios' && (
+          <Modal
+            visible={showPicker}
+            transparent={true}
+            animationType="fade"
+            onRequestClose={() => setShowPicker(false)}
+          >
+            <View style={styles.modalOverlay}>
+              <View style={styles.modalContent}>
+                <View style={styles.modalHeader}>
+                  <Text style={styles.modalTitle}>Select Date</Text>
+                  <TouchableOpacity
+                    onPress={() => setShowPicker(false)}
+                    style={styles.modalCloseButton}
+                  >
+                    <Text style={styles.modalCloseText}>✕</Text>
+                  </TouchableOpacity>
+                </View>
+                <DateTimePicker
+                  value={selectedDate || getMaxDate()}
+                  mode="date"
+                  display="default"
+                  onChange={handleDateChange}
+                  maximumDate={getMaxDate()}
+                  minimumDate={getMinDate()}
+                />
+              </View>
+            </View>
+          </Modal>
         )}
       </View>
 
@@ -506,5 +539,36 @@ const styles = StyleSheet.create({
   },
   continueButtonTextInactive: {
     color: '#9CA3AF',
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContent: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    padding: 20,
+    margin: 20,
+    minWidth: 300,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontFamily: 'Inter-SemiBold',
+    color: '#1F2937',
+  },
+  modalCloseButton: {
+    padding: 8,
+  },
+  modalCloseText: {
+    fontSize: 18,
+    color: '#6B7280',
   },
 });
