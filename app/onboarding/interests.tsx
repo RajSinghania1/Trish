@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, TextInput, Alert } from 'react-native';
 import { router } from 'expo-router';
-import { ChevronLeft, Search, Plus, X, CheckCircle } from 'lucide-react-native';
+import { ChevronLeft, Search, Plus, X, CircleCheck as CheckCircle } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 
 const MIN_INTERESTS = 5;

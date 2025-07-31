@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image, ScrollView, Alert, Dimensions } from 'react-native';
 import { router } from 'expo-router';
-import { ChevronLeft, Camera, X, RotateCcw, AlertCircle, CheckCircle } from 'lucide-react-native';
+import { ChevronLeft, Camera, X, RotateCcw, CircleAlert as AlertCircle, CircleCheck as CheckCircle } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as ImagePicker from 'expo-image-picker';
 import { manipulateAsync, SaveFormat } from 'expo-image-manipulator';

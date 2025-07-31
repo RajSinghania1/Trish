@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert, Platform } from 'react-native';
 import { router } from 'expo-router';
-import { ChevronLeft, Bell, Heart, MessageCircle, Gift, Star, Settings, CheckCircle, X } from 'lucide-react-native';
+import { ChevronLeft, Bell, Heart, MessageCircle, Gift, Star, Settings, CircleCheck as CheckCircle, X } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Notifications from 'expo-notifications';
 
