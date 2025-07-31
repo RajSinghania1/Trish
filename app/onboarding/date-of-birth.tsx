@@ -3,8 +3,13 @@ import { View, Text, StyleSheet, TouchableOpacity, Platform, Alert, Modal } from
 import { router } from 'expo-router';
 import { ChevronLeft, Calendar, CircleAlert as AlertCircle, CircleCheck as CheckCircle } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+
+// Only import DateTimePicker on native platforms
+let DateTimePicker: any = null;
+if (Platform.OS !== 'web') {
+  DateTimePicker = require('@react-native-community/datetimepicker').default;
+}
 
 const MIN_AGE = 18;
 const MAX_AGE = 100;
@@ -62,7 +67,7 @@ export default function DateOfBirthScreen() {
     return null;
   };
 
-  const handleDateChange = (event: DateTimePickerEvent, date?: Date) => {
+  const handleDateChange = (event: any, date?: Date) => {
     if (Platform.OS === 'android') {
       setShowPicker(false);
     }
@@ -81,9 +86,43 @@ export default function DateOfBirthScreen() {
   const showDatePicker = () => {
     console.log('Date picker button clicked');
     console.log('Platform:', Platform.OS);
-    console.log('Current showPicker state:', showPicker);
-    setShowPicker(true);
-    console.log('Set showPicker to true');
+    
+    if (Platform.OS === 'web') {
+      // Create a native HTML date input for web
+      const input = document.createElement('input');
+      input.type = 'date';
+      input.max = getMaxDate().toISOString().split('T')[0];
+      input.min = getMinDate().toISOString().split('T')[0];
+      
+      if (selectedDate) {
+        input.value = selectedDate.toISOString().split('T')[0];
+      }
+      
+      input.style.position = 'absolute';
+      input.style.left = '-9999px';
+      input.style.opacity = '0';
+      
+      document.body.appendChild(input);
+      
+      input.addEventListener('change', (e) => {
+        const target = e.target as HTMLInputElement;
+        if (target.value) {
+          const date = new Date(target.value);
+          const validationError = validateAge(date);
+          setError(validationError);
+          
+          if (!validationError) {
+            setSelectedDate(date);
+            saveDateData(date);
+          }
+        }
+        document.body.removeChild(input);
+      });
+      
+      input.click();
+    } else {
+      setShowPicker(true);
+    }
   };
 
   const formatDate = (date: Date): string => {
@@ -245,7 +284,7 @@ export default function DateOfBirthScreen() {
         </View>
 
         {/* Date Picker */}
-        {showPicker && Platform.OS === 'ios' && (
+        {showPicker && Platform.OS === 'ios' && DateTimePicker && (
           <DateTimePicker
             value={selectedDate || getMaxDate()}
             mode="date"
@@ -267,7 +306,7 @@ export default function DateOfBirthScreen() {
         )}
 
         {/* Android/Web Date Picker Modal */}
-        {showPicker && Platform.OS !== 'ios' && (
+        {showPicker && Platform.OS === 'android' && DateTimePicker && (
           <Modal
             visible={showPicker}
             transparent={true}
