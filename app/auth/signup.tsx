@@ -15,28 +15,31 @@ export default function Signup() {
 
   const handleSignup = async () => {
     if (!email || !password || !confirmPassword) {
-      Alert.alert('Error', 'Please fill in all fields');
+      setError('Please fill in all fields');
       return;
     }
 
     if (password !== confirmPassword) {
-      Alert.alert('Error', 'Passwords do not match');
+      setError('Passwords do not match');
       return;
     }
 
     if (password.length < 6) {
-      Alert.alert('Error', 'Password must be at least 6 characters');
+      setError('Password must be at least 6 characters');
       return;
     }
 
     setIsLoading(true);
+    setError(null);
+    
     const { error } = await signUp(email, password);
     
     if (error) {
-      Alert.alert('Error', error.message);
+      setError(error.message);
       setIsLoading(false);
     } else {
-      router.push('/auth/profile-setup');
+      // After successful signup, redirect to onboarding
+      router.replace('/onboarding/photo-upload');
     }
   };
 

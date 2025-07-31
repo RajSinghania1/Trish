@@ -98,7 +98,23 @@ export default function DateOfBirthScreen() {
       return;
     }
 
+    setError(null);
     router.push('/onboarding/interests');
+  };
+
+  const handleSkip = () => {
+    Alert.alert(
+      'Skip Date of Birth?',
+      'Your age helps us find better matches. Are you sure you want to skip?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { 
+          text: 'Skip', 
+          style: 'destructive',
+          onPress: () => router.push('/onboarding/interests')
+        }
+      ]
+    );
   };
 
   const getMaxDate = (): Date => {
@@ -133,6 +149,12 @@ export default function DateOfBirthScreen() {
           </View>
           <Text style={styles.progressText}>2 of 5</Text>
         </View>
+        <TouchableOpacity onPress={handleSkip}>
+          <Text style={styles.skipText}>Skip</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={handleSkip}>
+          <Text style={styles.skipText}>Skip</Text>
+        </TouchableOpacity>
       </View>
 
       <View style={styles.content}>
@@ -305,6 +327,11 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontFamily: 'Inter-Medium',
     color: '#6B7280',
+  },
+  skipText: {
+    fontSize: 16,
+    fontFamily: 'Inter-SemiBold',
+    color: '#E94E87',
   },
   content: {
     flex: 1,

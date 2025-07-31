@@ -54,6 +54,7 @@ export default function InterestsScreen() {
   const [customInterest, setCustomInterest] = useState('');
   const [showCustomInput, setShowCustomInput] = useState(false);
   const [activeCategory, setActiveCategory] = useState<string>('Sports & Fitness');
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     loadSavedInterests();
@@ -133,14 +134,27 @@ export default function InterestsScreen() {
 
   const handleContinue = () => {
     if (selectedInterests.length < MIN_INTERESTS) {
-      Alert.alert(
-        'More Interests Needed',
-        `Please select at least ${MIN_INTERESTS} interests to help us find better matches for you.`
-      );
+      setError(`Please select at least ${MIN_INTERESTS} interests to help us find better matches for you.`);
       return;
     }
 
+    setError(null);
     router.push('/onboarding/notifications');
+  };
+
+  const handleSkip = () => {
+    Alert.alert(
+      'Skip Interests?',
+      'Interests help us find people you\'ll connect with. Are you sure you want to skip?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { 
+          text: 'Skip', 
+          style: 'destructive',
+          onPress: () => router.push('/onboarding/notifications')
+        }
+      ]
+    );
   };
 
   return (
@@ -162,6 +176,9 @@ export default function InterestsScreen() {
           </View>
           <Text style={styles.progressText}>3 of 5</Text>
         </View>
+        <TouchableOpacity onPress={handleSkip}>
+          <Text style={styles.skipText}>Skip</Text>
+        </TouchableOpacity>
       </View>
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
@@ -171,6 +188,13 @@ export default function InterestsScreen() {
         </Text>
 
         {/* Progress Indicator */}
+        {error && (
+          <View style={styles.errorContainer}>
+            <AlertCircle size={20} color="#EF4444" />
+            <Text style={styles.errorText}>{error}</Text>
+          </View>
+        )}
+
         <View style={styles.progressCard}>
           <View style={styles.progressHeader}>
             <Text style={styles.progressLabel}>
@@ -410,6 +434,26 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontFamily: 'Inter-Medium',
     color: '#6B7280',
+  },
+  skipText: {
+    fontSize: 16,
+    fontFamily: 'Inter-SemiBold',
+    color: '#E94E87',
+  },
+  errorContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FEF2F2',
+    borderRadius: 12,
+    padding: 12,
+    marginBottom: 16,
+    gap: 8,
+  },
+  errorText: {
+    fontSize: 14,
+    fontFamily: 'Inter-Medium',
+    color: '#EF4444',
+    flex: 1,
   },
   content: {
     flex: 1,

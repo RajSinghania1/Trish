@@ -36,7 +36,18 @@ export default function Login() {
       }
 
       // Login successful, navigate to main app
-      router.replace('/(tabs)');
+      // Check if user has completed onboarding
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('id, name, age, interests, images')
+        .eq('id', (await supabase.auth.getUser()).data.user?.id)
+        .single();
+
+      if (profile && profile.name && profile.age && profile.interests?.length >= 3) {
+        router.replace('/(tabs)');
+      } else {
+        router.replace('/onboarding/photo-upload');
+      }
     } catch (err) {
       setError('An unexpected error occurred. Please try again.');
       console.error('Login error:', err);

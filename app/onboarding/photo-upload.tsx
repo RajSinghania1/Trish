@@ -21,6 +21,7 @@ interface Photo {
 export default function PhotoUploadScreen() {
   const [photos, setPhotos] = useState<Photo[]>([]);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     requestPermissions();
@@ -161,16 +162,30 @@ export default function PhotoUploadScreen() {
 
   const handleContinue = () => {
     if (photos.length < MIN_PHOTOS) {
-      Alert.alert(
-        'More Photos Needed',
-        `Please upload at least ${MIN_PHOTOS} photos to continue.`
-      );
+      setError(`Please upload at least ${MIN_PHOTOS} photos to continue.`);
       return;
     }
 
+    setError(null);
     // Save photos to AsyncStorage for later Supabase upload
     savePhotosData();
     router.push('/onboarding/date-of-birth');
+  };
+
+  const handleSkip = () => {
+    // Allow skipping with warning
+    Alert.alert(
+      'Skip Photo Upload?',
+      'Photos help others connect with you. Are you sure you want to skip?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { 
+          text: 'Skip', 
+          style: 'destructive',
+          onPress: () => router.push('/onboarding/date-of-birth')
+        }
+      ]
+    );
   };
 
   const savePhotosData = async () => {
@@ -303,6 +318,13 @@ export default function PhotoUploadScreen() {
           </Text>
         </View>
 
+        {error && (
+          <View style={styles.errorContainer}>
+            <AlertCircle size={20} color="#EF4444" />
+            <Text style={styles.errorText}>{error}</Text>
+          </View>
+        )}
+
         {/* Photo Grid */}
         <View style={styles.photoGrid}>
           {Array.from({ length: MAX_PHOTOS }, (_, index) => renderPhotoSlot(index))}
@@ -354,8 +376,8 @@ export default function PhotoUploadScreen() {
             styles.continueButtonText,
             photos.length >= MIN_PHOTOS ? styles.continueButtonTextActive : styles.continueButtonTextInactive
           ]}>
-            {loading ? 'Processing...' : 'Continue'}
-          </Text>
+        <TouchableOpacity onPress={handleSkip}>
+          <Text style={styles.skipText}>Skip</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -456,6 +478,21 @@ const styles = StyleSheet.create({
     fontFamily: 'Inter-Regular',
     color: '#6B7280',
     lineHeight: 20,
+  },
+  errorContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FEF2F2',
+    borderRadius: 12,
+    padding: 12,
+    marginBottom: 16,
+    gap: 8,
+  },
+  errorText: {
+    fontSize: 14,
+    fontFamily: 'Inter-Medium',
+    color: '#EF4444',
+    flex: 1,
   },
   photoGrid: {
     flexDirection: 'row',

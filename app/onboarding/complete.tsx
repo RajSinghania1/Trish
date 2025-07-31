@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Dimensions, Alert } from 'react-native';
 import { router } from 'expo-router';
 import { Heart, Sparkles, Users, MessageCircle } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -32,17 +32,21 @@ export default function OnboardingCompleteScreen() {
       const birthDateObj = birthDate ? new Date(birthDate) : null;
       const age = birthDateObj ? calculateAge(birthDateObj) : null;
 
+      // Generate a default name from email
+      const defaultName = user.email?.split('@')[0]?.replace(/[^a-zA-Z0-9]/g, '') || 'User';
+
       // Create user profile with complete onboarding data
       const { error: profileError } = await supabase
         .from('profiles')
         .upsert({
           id: user.id,
           email: user.email || '',
-          name: user.email?.split('@')[0] || 'New User',
+          name: defaultName,
           age: age,
           bio: '',
           interests: interests.map((interest: any) => interest.name),
           images: photos.map((photo: any) => photo.uri),
+          superlikes_count: 5,
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString()
         }, {
@@ -51,6 +55,7 @@ export default function OnboardingCompleteScreen() {
 
       if (profileError) {
         console.error('Error creating profile:', profileError);
+        Alert.alert('Error', 'Failed to create profile. Please try again.');
         return;
       }
 
@@ -66,7 +71,18 @@ export default function OnboardingCompleteScreen() {
 
       if (walletError) {
         console.error('Error creating wallet:', walletError);
+        // Don't block completion for wallet error, just log it
       }
+
+      // Add welcome transaction
+      await supabase
+        .from('wallet_transactions')
+        .insert({
+          user_id: user.id,
+          amount: 100,
+          description: 'Welcome bonus',
+          transaction_type: 'credit'
+        });
 
       // Clear onboarding data from AsyncStorage
       await clearOnboardingData();
@@ -75,6 +91,7 @@ export default function OnboardingCompleteScreen() {
       router.replace('/(tabs)');
     } catch (error) {
       console.error('Unexpected error:', error);
+      Alert.alert('Error', 'An unexpected error occurred. Please try again.');
     } finally {
       setLoading(false);
     }
