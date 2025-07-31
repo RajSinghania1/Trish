@@ -3,6 +3,8 @@ import { createClient } from '@supabase/supabase-js';
 const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL;
 const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
 
+let supabase: any;
+
 if (!supabaseUrl || !supabaseAnonKey || supabaseUrl.includes('your_') || supabaseAnonKey.includes('your_') || supabaseUrl.includes('placeholder') || supabaseAnonKey.includes('placeholder')) {
   console.warn(
     '⚠️  Supabase not configured: Please set up your Supabase credentials in the .env file.\n' +
@@ -11,7 +13,7 @@ if (!supabaseUrl || !supabaseAnonKey || supabaseUrl.includes('your_') || supabas
   );
   
   // Create a mock client for demo purposes
-  export const supabase = {
+  supabase = {
     auth: {
       signUp: () => Promise.resolve({ data: { user: null }, error: { message: 'Demo mode - Supabase not configured' } }),
       signInWithPassword: () => Promise.resolve({ data: { user: null }, error: { message: 'Demo mode - Supabase not configured' } }),
@@ -25,7 +27,9 @@ if (!supabaseUrl || !supabaseAnonKey || supabaseUrl.includes('your_') || supabas
       update: () => ({ data: null, error: { message: 'Demo mode - Supabase not configured' } }),
       delete: () => ({ data: null, error: { message: 'Demo mode - Supabase not configured' } })
     })
-  } as any;
+  };
 } else {
-  export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+  supabase = createClient(supabaseUrl, supabaseAnonKey);
 }
+
+export { supabase };
