@@ -17,7 +17,7 @@ export default function Index() {
         .from('profiles')
         .select('id, name, age, interests, images')
         .eq('id', session.user.id)
-        .single();
+        .maybeSingle();
 
       if (error || !profile) {
         // No profile found, redirect to onboarding
