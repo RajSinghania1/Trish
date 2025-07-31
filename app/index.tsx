@@ -35,14 +35,14 @@ export default function Index() {
         router.replace('/(tabs)');
       } else {
         // For demo purposes, create a basic profile and go to main app
-        await createBasicProfile(user.id);
+        await createBasicProfile(session.user.id);
         router.replace('/(tabs)');
       }
     } catch (error) {
       console.error('Error checking onboarding status:', error);
       // Create basic profile and continue to main app
-      if (user?.id) {
-        await createBasicProfile(user.id);
+      if (session?.user?.id) {
+        await createBasicProfile(session.user.id);
       }
       router.replace('/(tabs)');
     }
@@ -50,13 +50,13 @@ export default function Index() {
 
   const createBasicProfile = async (userId: string) => {
     try {
-      const defaultName = user?.email?.split('@')[0]?.replace(/[^a-zA-Z0-9]/g, '') || 'User';
+      const defaultName = session?.user?.email?.split('@')[0]?.replace(/[^a-zA-Z0-9]/g, '') || 'User';
       
       const { error: profileError } = await supabase
         .from('profiles')
         .upsert({
           id: userId,
-          email: user?.email || '',
+          email: session?.user?.email || '',
           name: defaultName,
           age: 25,
           location: 'New York, NY',
