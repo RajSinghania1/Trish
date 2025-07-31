@@ -3,6 +3,7 @@ import { router, useRootNavigationState } from 'expo-router';
 import { View, StyleSheet } from 'react-native';
 import { useAuth } from '@/contexts/AuthContext';
 import { Platform } from 'react-native';
+import { supabase } from '@/lib/supabase';
 
 export default function Index() {
   const rootNavigationState = useRootNavigationState();
