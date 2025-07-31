@@ -382,7 +382,6 @@ export default function PhotoUploadScreen() {
         <TouchableOpacity onPress={handleSkip}>
           <Text style={styles.skipText}>Skip</Text>
         </TouchableOpacity>
-        </TouchableOpacity>
       </View>
     </View>
   );
