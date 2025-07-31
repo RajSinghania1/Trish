@@ -318,13 +318,6 @@ export default function PhotoUploadScreen() {
           </Text>
         </View>
 
-        {error && (
-          <View style={styles.errorContainer}>
-            <AlertCircle size={20} color="#EF4444" />
-            <Text style={styles.errorText}>{error}</Text>
-          </View>
-        )}
-
         {/* Photo Grid */}
         <View style={styles.photoGrid}>
           {Array.from({ length: MAX_PHOTOS }, (_, index) => renderPhotoSlot(index))}
@@ -376,6 +369,9 @@ export default function PhotoUploadScreen() {
             styles.continueButtonText,
             photos.length >= MIN_PHOTOS ? styles.continueButtonTextActive : styles.continueButtonTextInactive
           ]}>
+            Continue
+          </Text>
+        </TouchableOpacity>
         <TouchableOpacity onPress={handleSkip}>
           <Text style={styles.skipText}>Skip</Text>
         </TouchableOpacity>
@@ -478,21 +474,6 @@ const styles = StyleSheet.create({
     fontFamily: 'Inter-Regular',
     color: '#6B7280',
     lineHeight: 20,
-  },
-  errorContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#FEF2F2',
-    borderRadius: 12,
-    padding: 12,
-    marginBottom: 16,
-    gap: 8,
-  },
-  errorText: {
-    fontSize: 14,
-    fontFamily: 'Inter-Medium',
-    color: '#EF4444',
-    flex: 1,
   },
   photoGrid: {
     flexDirection: 'row',
@@ -650,5 +631,12 @@ const styles = StyleSheet.create({
   },
   continueButtonTextInactive: {
     color: '#9CA3AF',
+  },
+  skipText: {
+    fontSize: 16,
+    fontFamily: 'Inter-Medium',
+    color: '#6B7280',
+    textAlign: 'center',
+    marginTop: 16,
   },
 });
