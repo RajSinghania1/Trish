@@ -79,28 +79,7 @@ export default function DateOfBirthScreen() {
   };
 
   const showDatePicker = () => {
-    if (Platform.OS === 'web') {
-      // For web, create a simple input date picker
-      const input = document.createElement('input');
-      input.type = 'date';
-      input.max = getMaxDate().toISOString().split('T')[0];
-      input.min = getMinDate().toISOString().split('T')[0];
-      if (selectedDate) {
-        input.value = selectedDate.toISOString().split('T')[0];
-      }
-      
-      input.onchange = (e) => {
-        const target = e.target as HTMLInputElement;
-        if (target.value) {
-          const date = new Date(target.value);
-          handleDateChange(null, date);
-        }
-      };
-      
-      input.click();
-    } else {
-      setShowPicker(true);
-    }
+    setShowPicker(true);
   };
 
   const formatDate = (date: Date): string => {
@@ -262,11 +241,11 @@ export default function DateOfBirthScreen() {
         </View>
 
         {/* Date Picker */}
-        {showPicker && Platform.OS !== 'web' && (
+        {showPicker && (
           <DateTimePicker
             value={selectedDate || getMaxDate()}
             mode="date"
-            display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+            display={Platform.OS === 'ios' ? 'spinner' : Platform.OS === 'web' ? 'default' : 'default'}
             onChange={handleDateChange}
             maximumDate={getMaxDate()}
             minimumDate={getMinDate()}
@@ -274,7 +253,7 @@ export default function DateOfBirthScreen() {
           />
         )}
 
-        {Platform.OS === 'ios' && showPicker && Platform.OS !== 'web' && (
+        {Platform.OS === 'ios' && showPicker && (
           <TouchableOpacity
             style={styles.doneButton}
             onPress={() => setShowPicker(false)}
