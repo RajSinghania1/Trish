@@ -161,7 +161,7 @@ export default function ConversationScreen() {
             </View>
             {item.gift && (
               <>
-                <Image source={{ uri: item.gift.image }} style={styles.giftImage} />
+                <Image source={{ uri: item.gift.image || 'https://via.placeholder.com/150' }} style={styles.giftImage} />
                 <View style={styles.giftInfo}>
                   <Text style={styles.giftName}>{item.gift.name}</Text>
                   <Text style={styles.giftPrice}>${item.gift.price}</Text>
