@@ -86,41 +86,76 @@ export default function DateOfBirthScreen() {
   const showDatePicker = () => {
     console.log('Date picker button clicked');
     console.log('Platform:', Platform.OS);
+    console.log('About to create date input for web');
     
     if (Platform.OS === 'web') {
-      // Create a native HTML date input for web
-      const input = document.createElement('input');
-      input.type = 'date';
-      input.max = getMaxDate().toISOString().split('T')[0];
-      input.min = getMinDate().toISOString().split('T')[0];
-      
-      if (selectedDate) {
-        input.value = selectedDate.toISOString().split('T')[0];
-      }
-      
-      input.style.position = 'absolute';
-      input.style.left = '-9999px';
-      input.style.opacity = '0';
-      
-      document.body.appendChild(input);
-      
-      input.addEventListener('change', (e) => {
-        const target = e.target as HTMLInputElement;
-        if (target.value) {
-          const date = new Date(target.value);
-          const validationError = validateAge(date);
-          setError(validationError);
+      try {
+        // Create a native HTML date input for web
+        const input = document.createElement('input');
+        input.type = 'date';
+        input.max = getMaxDate().toISOString().split('T')[0];
+        input.min = getMinDate().toISOString().split('T')[0];
+        
+        if (selectedDate) {
+          input.value = selectedDate.toISOString().split('T')[0];
+        }
+        
+        input.style.position = 'absolute';
+        input.style.left = '-9999px';
+        input.style.opacity = '0';
+        input.style.pointerEvents = 'none';
+        
+        document.body.appendChild(input);
+        
+        input.addEventListener('change', (e) => {
+          console.log('Date input changed');
+          const target = e.target as HTMLInputElement;
+          console.log('Selected date value:', target.value);
           
-          if (!validationError) {
-            setSelectedDate(date);
-            saveDateData(date);
+          if (target.value) {
+            const date = new Date(target.value);
+            console.log('Parsed date:', date);
+            const validationError = validateAge(date);
+            console.log('Validation error:', validationError);
+            
+            setError(validationError);
+            
+            if (!validationError) {
+              setSelectedDate(date);
+              saveDateData(date);
+            }
+          }
+          
+          try {
+            document.body.removeChild(input);
+          } catch (err) {
+            console.log('Error removing input:', err);
+          }
+        });
+        
+        // Focus and click the input to trigger the date picker
+        input.focus();
+        input.click();
+        console.log('Date input clicked');
+      } catch (error) {
+        console.error('Error creating web date picker:', error);
+        // Fallback: just allow manual date entry
+        const dateString = prompt('Please enter your birth date (YYYY-MM-DD):');
+        if (dateString) {
+          const date = new Date(dateString);
+          if (!isNaN(date.getTime())) {
+            const validationError = validateAge(date);
+            setError(validationError);
+            
+            if (!validationError) {
+              setSelectedDate(date);
+              saveDateData(date);
+            }
           }
         }
-        document.body.removeChild(input);
-      });
-      
-      input.click();
+      }
     } else {
+      console.log('Setting showPicker to true for native platform');
       setShowPicker(true);
     }
   };
