@@ -5,6 +5,7 @@ import { ChevronLeft, Camera, X, RotateCcw, CircleAlert as AlertCircle, CircleCh
 import { LinearGradient } from 'expo-linear-gradient';
 import * as ImagePicker from 'expo-image-picker';
 import { manipulateAsync, SaveFormat } from 'expo-image-manipulator';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const { width } = Dimensions.get('window');
 const PHOTO_SIZE = (width - 60) / 2;
@@ -167,10 +168,44 @@ export default function PhotoUploadScreen() {
       return;
     }
 
-    // Save photos to context or storage
+    // Save photos to AsyncStorage for later Supabase upload
+    savePhotosData();
     router.push('/onboarding/date-of-birth');
   };
 
+  const savePhotosData = async () => {
+    try {
+      const photoData = photos.map(photo => ({
+        id: photo.id,
+        uri: photo.compressed || photo.uri,
+        isMain: photos.indexOf(photo) === 0
+      }));
+      await AsyncStorage.setItem('onboarding_photos', JSON.stringify(photoData));
+    } catch (error) {
+      console.error('Error saving photos data:', error);
+    }
+  };
+
+  // Load saved photos on component mount
+  useEffect(() => {
+    loadSavedPhotos();
+  }, []);
+
+  const loadSavedPhotos = async () => {
+    try {
+      const savedPhotos = await AsyncStorage.getItem('onboarding_photos');
+      if (savedPhotos) {
+        const photoData = JSON.parse(savedPhotos);
+        setPhotos(photoData.map((photo: any) => ({
+          id: photo.id,
+          uri: photo.uri,
+          compressed: photo.uri
+        })));
+      }
+    } catch (error) {
+      console.error('Error loading saved photos:', error);
+    }
+  };
   const renderPhotoSlot = (index: number) => {
     const photo = photos[index];
     

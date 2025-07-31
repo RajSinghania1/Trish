@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity, ScrollView, TextInput, Alert 
 import { router } from 'expo-router';
 import { ChevronLeft, Search, Plus, X, CircleCheck as CheckCircle } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const MIN_INTERESTS = 5;
 
@@ -54,6 +55,28 @@ export default function InterestsScreen() {
   const [showCustomInput, setShowCustomInput] = useState(false);
   const [activeCategory, setActiveCategory] = useState<string>('Sports & Fitness');
 
+  useEffect(() => {
+    loadSavedInterests();
+  }, []);
+
+  const loadSavedInterests = async () => {
+    try {
+      const savedInterests = await AsyncStorage.getItem('onboarding_interests');
+      if (savedInterests) {
+        setSelectedInterests(JSON.parse(savedInterests));
+      }
+    } catch (error) {
+      console.error('Error loading saved interests:', error);
+    }
+  };
+
+  const saveInterestsData = async (interests: Interest[]) => {
+    try {
+      await AsyncStorage.setItem('onboarding_interests', JSON.stringify(interests));
+    } catch (error) {
+      console.error('Error saving interests data:', error);
+    }
+  };
   const allInterests: Interest[] = Object.entries(interestCategories).flatMap(([category, interests]) =>
     interests.map(interest => ({
       id: `${category}-${interest}`,
@@ -74,11 +97,14 @@ export default function InterestsScreen() {
   const toggleInterest = (interest: Interest) => {
     setSelectedInterests(prev => {
       const isSelected = prev.some(selected => selected.id === interest.id);
+      let newInterests;
       if (isSelected) {
-        return prev.filter(selected => selected.id !== interest.id);
+        newInterests = prev.filter(selected => selected.id !== interest.id);
       } else {
-        return [...prev, interest];
+        newInterests = [...prev, interest];
       }
+      saveInterestsData(newInterests);
+      return newInterests;
     });
   };
 
@@ -94,10 +120,15 @@ export default function InterestsScreen() {
     setSelectedInterests(prev => [...prev, newInterest]);
     setCustomInterest('');
     setShowCustomInput(false);
+    saveInterestsData([...selectedInterests, newInterest]);
   };
 
   const removeInterest = (interestId: string) => {
-    setSelectedInterests(prev => prev.filter(interest => interest.id !== interestId));
+    setSelectedInterests(prev => {
+      const newInterests = prev.filter(interest => interest.id !== interestId);
+      saveInterestsData(newInterests);
+      return newInterests;
+    });
   };
 
   const handleContinue = () => {
@@ -109,7 +140,6 @@ export default function InterestsScreen() {
       return;
     }
 
-    // Save interests to context or storage
     router.push('/onboarding/notifications');
   };
 

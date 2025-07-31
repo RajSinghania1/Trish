@@ -38,12 +38,12 @@ export default function OnboardingIndex() {
     if (currentIndex < onboardingData.length - 1) {
       setCurrentIndex(currentIndex + 1);
     } else {
-      router.push('/onboarding/photo-upload');
+      router.push('/auth');
     }
   };
 
   const handleSkip = () => {
-    router.push('/onboarding/photo-upload');
+    router.push('/auth');
   };
 
   return (

@@ -4,6 +4,7 @@ import { router } from 'expo-router';
 import { ChevronLeft, Bell, Heart, MessageCircle, Gift, Star, Settings, CircleCheck as CheckCircle, X } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Notifications from 'expo-notifications';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 interface NotificationSetting {
   id: string;
@@ -61,8 +62,27 @@ export default function NotificationsScreen() {
 
   useEffect(() => {
     checkNotificationPermission();
+    loadSavedSettings();
   }, []);
 
+  const loadSavedSettings = async () => {
+    try {
+      const savedSettings = await AsyncStorage.getItem('onboarding_notifications');
+      if (savedSettings) {
+        setNotificationSettings(JSON.parse(savedSettings));
+      }
+    } catch (error) {
+      console.error('Error loading saved notification settings:', error);
+    }
+  };
+
+  const saveNotificationSettings = async (settings: NotificationSetting[]) => {
+    try {
+      await AsyncStorage.setItem('onboarding_notifications', JSON.stringify(settings));
+    } catch (error) {
+      console.error('Error saving notification settings:', error);
+    }
+  };
   const checkNotificationPermission = async () => {
     const { status } = await Notifications.getPermissionsAsync();
     setPermissionGranted(status === 'granted');
@@ -105,9 +125,13 @@ export default function NotificationsScreen() {
 
   const toggleNotificationSetting = (id: string) => {
     setNotificationSettings(prev =>
-      prev.map(setting =>
+      {
+        const newSettings = prev.map(setting =>
         setting.id === id ? { ...setting, enabled: !setting.enabled } : setting
-      )
+        );
+        saveNotificationSettings(newSettings);
+        return newSettings;
+      }
     );
   };
 

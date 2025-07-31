@@ -56,38 +56,8 @@ export default function ProfileSetup() {
     setIsLoading(true);
     
     try {
-      const { error } = await supabase
-        .from('profiles')
-        .insert({
-          id: user.id,
-          email: user.email || '',
-          name: `${profileData.firstName} ${profileData.lastName}`.trim(),
-          age: profileData.birthday ? calculateAge(profileData.birthday) : null,
-          gender: profileData.gender.toLowerCase(),
-          bio: '',
-          interests: [],
-          images: []
-        });
-
-      if (error) {
-        console.error('Error creating profile:', error);
-        return;
-      }
-
-      const { error: walletError } = await supabase
-        .from('wallets')
-        .upsert({
-          user_id: user.id,
-          balance: 100
-        }, {
-          onConflict: 'user_id'
-        });
-
-      if (walletError) {
-        console.error('Error creating wallet:', walletError);
-      }
-
-      router.replace('/(tabs)');
+      // Redirect to comprehensive onboarding instead
+      router.replace('/onboarding/photo-upload');
     } catch (error) {
       console.error('Unexpected error:', error);
     } finally {

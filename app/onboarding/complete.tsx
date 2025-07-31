@@ -5,6 +5,7 @@ import { Heart, Sparkles, Users, MessageCircle } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const { width, height } = Dimensions.get('window');
 
@@ -18,17 +19,30 @@ export default function OnboardingCompleteScreen() {
     setLoading(true);
     
     try {
-      // Create user profile with onboarding data
+      // Load all onboarding data
+      const [photosData, birthDate, interestsData, notificationSettings] = await Promise.all([
+        AsyncStorage.getItem('onboarding_photos'),
+        AsyncStorage.getItem('onboarding_birthdate'),
+        AsyncStorage.getItem('onboarding_interests'),
+        AsyncStorage.getItem('onboarding_notifications')
+      ]);
+
+      const photos = photosData ? JSON.parse(photosData) : [];
+      const interests = interestsData ? JSON.parse(interestsData) : [];
+      const birthDateObj = birthDate ? new Date(birthDate) : null;
+      const age = birthDateObj ? calculateAge(birthDateObj) : null;
+
+      // Create user profile with complete onboarding data
       const { error: profileError } = await supabase
         .from('profiles')
         .upsert({
           id: user.id,
           email: user.email || '',
-          name: 'New User', // This would come from onboarding data
-          age: 25, // This would come from date of birth
+          name: user.email?.split('@')[0] || 'New User',
+          age: age,
           bio: '',
-          interests: [], // This would come from interests selection
-          images: [], // This would come from photo upload
+          interests: interests.map((interest: any) => interest.name),
+          images: photos.map((photo: any) => photo.uri),
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString()
         }, {
@@ -54,12 +68,38 @@ export default function OnboardingCompleteScreen() {
         console.error('Error creating wallet:', walletError);
       }
 
+      // Clear onboarding data from AsyncStorage
+      await clearOnboardingData();
+
       // Navigate to main app
       router.replace('/(tabs)');
     } catch (error) {
       console.error('Unexpected error:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const calculateAge = (birthDate: Date): number => {
+    const today = new Date();
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+    return age;
+  };
+
+  const clearOnboardingData = async () => {
+    try {
+      await Promise.all([
+        AsyncStorage.removeItem('onboarding_photos'),
+        AsyncStorage.removeItem('onboarding_birthdate'),
+        AsyncStorage.removeItem('onboarding_interests'),
+        AsyncStorage.removeItem('onboarding_notifications')
+      ]);
+    } catch (error) {
+      console.error('Error clearing onboarding data:', error);
     }
   };
 

@@ -4,6 +4,7 @@ import { router } from 'expo-router';
 import { ChevronLeft, Calendar, CircleAlert as AlertCircle, CircleCheck as CheckCircle } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const MIN_AGE = 18;
 const MAX_AGE = 100;
@@ -13,6 +14,28 @@ export default function DateOfBirthScreen() {
   const [showPicker, setShowPicker] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  useEffect(() => {
+    loadSavedDate();
+  }, []);
+
+  const loadSavedDate = async () => {
+    try {
+      const savedDate = await AsyncStorage.getItem('onboarding_birthdate');
+      if (savedDate) {
+        setSelectedDate(new Date(savedDate));
+      }
+    } catch (error) {
+      console.error('Error loading saved date:', error);
+    }
+  };
+
+  const saveDateData = async (date: Date) => {
+    try {
+      await AsyncStorage.setItem('onboarding_birthdate', date.toISOString());
+    } catch (error) {
+      console.error('Error saving date data:', error);
+    }
+  };
   const calculateAge = (birthDate: Date): number => {
     const today = new Date();
     let age = today.getFullYear() - birthDate.getFullYear();
@@ -50,6 +73,7 @@ export default function DateOfBirthScreen() {
       
       if (!validationError) {
         setSelectedDate(date);
+        saveDateData(date);
       }
     }
   };
@@ -74,7 +98,6 @@ export default function DateOfBirthScreen() {
       return;
     }
 
-    // Save date to context or storage
     router.push('/onboarding/interests');
   };
 
