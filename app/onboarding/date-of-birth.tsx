@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Platform } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Platform, Alert } from 'react-native';
 import { router } from 'expo-router';
 import { ChevronLeft, Calendar, CircleAlert as AlertCircle, CircleCheck as CheckCircle } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -11,7 +11,7 @@ const MAX_AGE = 100;
 
 export default function DateOfBirthScreen() {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-  const [showPicker, setShowPicker] = useState(false);
+  const [showPicker, setShowPicker] = useState(Platform.OS === 'ios');
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -63,7 +63,7 @@ export default function DateOfBirthScreen() {
   };
 
   const handleDateChange = (event: any, date?: Date) => {
-    if (Platform.OS === 'android') {
+    if (Platform.OS === 'android' || Platform.OS === 'web') {
       setShowPicker(false);
     }
     
@@ -75,6 +75,31 @@ export default function DateOfBirthScreen() {
         setSelectedDate(date);
         saveDateData(date);
       }
+    }
+  };
+
+  const showDatePicker = () => {
+    if (Platform.OS === 'web') {
+      // For web, create a simple input date picker
+      const input = document.createElement('input');
+      input.type = 'date';
+      input.max = getMaxDate().toISOString().split('T')[0];
+      input.min = getMinDate().toISOString().split('T')[0];
+      if (selectedDate) {
+        input.value = selectedDate.toISOString().split('T')[0];
+      }
+      
+      input.onchange = (e) => {
+        const target = e.target as HTMLInputElement;
+        if (target.value) {
+          const date = new Date(target.value);
+          handleDateChange(null, date);
+        }
+      };
+      
+      input.click();
+    } else {
+      setShowPicker(true);
     }
   };
 
@@ -170,7 +195,7 @@ export default function DateOfBirthScreen() {
             selectedDate && styles.dateButtonSelected,
             error && styles.dateButtonError
           ]}
-          onPress={() => setShowPicker(true)}
+          onPress={showDatePicker}
         >
           <Calendar size={24} color={selectedDate ? "#E94E87" : "#9CA3AF"} />
           <View style={styles.dateContent}>
@@ -237,7 +262,7 @@ export default function DateOfBirthScreen() {
         </View>
 
         {/* Date Picker */}
-        {showPicker && (
+        {showPicker && Platform.OS !== 'web' && (
           <DateTimePicker
             value={selectedDate || getMaxDate()}
             mode="date"
@@ -249,7 +274,7 @@ export default function DateOfBirthScreen() {
           />
         )}
 
-        {Platform.OS === 'ios' && showPicker && (
+        {Platform.OS === 'ios' && showPicker && Platform.OS !== 'web' && (
           <TouchableOpacity
             style={styles.doneButton}
             onPress={() => setShowPicker(false)}
