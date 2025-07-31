@@ -80,7 +80,10 @@ export default function DateOfBirthScreen() {
 
   const showDatePicker = () => {
     console.log('Date picker button clicked');
+    console.log('Platform:', Platform.OS);
+    console.log('Current showPicker state:', showPicker);
     setShowPicker(true);
+    console.log('Set showPicker to true');
   };
 
   const formatDate = (date: Date): string => {
