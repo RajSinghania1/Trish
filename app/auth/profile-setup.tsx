@@ -56,7 +56,7 @@ export default function ProfileSetup() {
     setIsLoading(true);
     
     try {
-      // Always redirect to comprehensive onboarding
+      // Redirect to comprehensive onboarding
       router.replace('/onboarding/photo-upload');
     } catch (error) {
       console.error('Unexpected error:', error);

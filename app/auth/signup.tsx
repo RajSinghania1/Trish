@@ -39,8 +39,8 @@ export default function Signup() {
       setError(error.message);
       setIsLoading(false);
     } else {
-      // After successful signup, redirect to onboarding
-      router.replace('/onboarding/photo-upload');
+      // Let the main index.tsx handle routing after auth state changes
+      router.replace('/');
     }
   };
 

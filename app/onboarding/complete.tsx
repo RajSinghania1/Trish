@@ -43,6 +43,7 @@ export default function OnboardingCompleteScreen() {
           email: user.email || '',
           name: defaultName,
           age: age,
+          location: 'New York, NY', // Default location
           bio: '',
           interests: interests.map((interest: any) => interest.name),
           images: photos.map((photo: any) => photo.uri),

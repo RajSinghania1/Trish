@@ -43,19 +43,14 @@ export default function Index() {
   };
 
   useEffect(() => {
-    // On web, we need to be more aggressive about navigation
-    const shouldNavigate = Platform.OS === 'web' ? !loading : (rootNavigationState?.key && !loading);
-    
-    if (shouldNavigate) {
+    if (!loading) {
       if (session) {
-        // Check if user has completed onboarding
         checkOnboardingStatus();
       } else {
-        // User is not authenticated, go to splash/onboarding
         router.replace('/splash');
       }
     }
-  }, [rootNavigationState?.key, session, loading]);
+  }, [session, loading]);
 
   // Show loading screen while checking auth state
   if (loading) {
