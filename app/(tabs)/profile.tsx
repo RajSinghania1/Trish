@@ -1,18 +1,21 @@
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, Modal, TextInput } from 'react-native';
 import { Settings, MapPin, CreditCard as Edit3, Heart, MessageCircle, Star, Camera, Plus, X, ChevronRight, Shield, Crown } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import LocationPicker from '@/components/LocationPicker';
 import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/lib/supabase';
 
 export default function ProfileScreen() {
-  const { signOut } = useAuth();
+  const { signOut, user } = useAuth();
+  const [userProfile, setUserProfile] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showInterestsModal, setShowInterestsModal] = useState(false);
   const [showLocationPicker, setShowLocationPicker] = useState(false);
   const [currentLocation, setCurrentLocation] = useState('New York, NY');
   
-  const interests = ['Photography', 'Travel', 'Coffee', 'Art', 'Music', 'Hiking'];
+  const [interests, setInterests] = useState<string[]>([]);
   const availableInterests = [
     'Photography', 'Travel', 'Coffee', 'Art', 'Music', 'Hiking',
     'Cooking', 'Reading', 'Fitness', 'Dancing', 'Movies', 'Gaming',
@@ -21,6 +24,38 @@ export default function ProfileScreen() {
   
   const [selectedInterests, setSelectedInterests] = useState(interests);
   
+  useEffect(() => {
+    loadUserProfile();
+  }, [user?.id]);
+
+  const loadUserProfile = async () => {
+    if (!user?.id) return;
+
+    try {
+      const { data: profile, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .single();
+
+      if (error) {
+        console.error('Error loading profile:', error);
+        return;
+      }
+
+      if (profile) {
+        setUserProfile(profile);
+        setInterests(profile.interests || []);
+        setSelectedInterests(profile.interests || []);
+        setCurrentLocation(profile.location || 'New York, NY');
+      }
+    } catch (error) {
+      console.error('Error loading profile:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const toggleInterest = (interest: string) => {
     if (selectedInterests.includes(interest)) {
       setSelectedInterests(prev => prev.filter(i => i !== interest));
@@ -29,6 +64,14 @@ export default function ProfileScreen() {
     }
   };
   
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <Text style={styles.loadingText}>Loading profile...</Text>
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
       {/* Header */}
@@ -73,7 +116,9 @@ export default function ProfileScreen() {
         <View style={styles.profileCard}>
           <View style={styles.profileImageContainer}>
             <Image 
-              source={{ uri: 'https://images.pexels.com/photos/1130626/pexels-photo-1130626.jpeg?auto=compress&cs=tinysrgb&w=400' }}
+              source={{ 
+                uri: userProfile?.images?.[0] || 'https://images.pexels.com/photos/1130626/pexels-photo-1130626.jpeg?auto=compress&cs=tinysrgb&w=400' 
+              }}
               style={styles.profileImage}
             />
             <TouchableOpacity style={styles.editImageButton}>
@@ -85,15 +130,15 @@ export default function ProfileScreen() {
           </View>
           
           <View style={styles.profileInfo}>
-            <Text style={styles.profileName}>Emma, 25</Text>
+            <Text style={styles.profileName}>{userProfile?.name || 'User'}, {userProfile?.age || 25}</Text>
             <View style={styles.locationContainer}>
               <MapPin size={14} color="#6B7280" />
               <TouchableOpacity onPress={() => setShowLocationPicker(true)}>
-                <Text style={styles.location}>{currentLocation}</Text>
+                <Text style={styles.location}>{userProfile?.location || currentLocation}</Text>
               </TouchableOpacity>
             </View>
             <Text style={styles.bio}>
-              Photographer and coffee enthusiast ☕ Love exploring hidden gems in the city and weekend getaways to the mountains.
+              {userProfile?.bio || 'Welcome to my profile!'}
             </Text>
             
             {/* Interests */}
@@ -322,6 +367,17 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#F8FAFC',
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#F8FAFC',
+  },
+  loadingText: {
+    fontSize: 16,
+    fontFamily: 'Inter-Regular',
+    color: '#6B7280',
   },
   header: {
     flexDirection: 'row',
