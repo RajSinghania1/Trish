@@ -277,10 +277,39 @@ export default function ProfileScreen() {
             <View style={styles.editSection}>
               <Text style={styles.editSectionTitle}>Photos</Text>
               <View style={styles.photosGrid}>
-                <TouchableOpacity style={styles.addPhotoButton}>
-                  <Plus size={24} color="#9CA3AF" />
-                  <Text style={styles.addPhotoText}>Add Photo</Text>
-                </TouchableOpacity>
+                {/* Current Photos */}
+                {userProfile?.images?.map((imageUri, index) => (
+                  <View key={`photo-${index}`} style={styles.photoSlot}>
+                    <Image source={{ uri: imageUri }} style={styles.photoImage} />
+                    <TouchableOpacity style={styles.removePhotoButton}>
+                      <X size={16} color="#FFFFFF" />
+                    </TouchableOpacity>
+                    {index === 0 && (
+                      <View style={styles.mainPhotoBadge}>
+                        <Text style={styles.mainPhotoText}>Main</Text>
+                      </View>
+                    )}
+                  </View>
+                ))}
+                
+                {/* Add Photo Slots */}
+                {Array.from({ length: Math.max(0, 6 - (userProfile?.images?.length || 0)) }, (_, index) => (
+                  <TouchableOpacity 
+                    key={`add-${index}`} 
+                    style={[
+                      styles.addPhotoButton,
+                      index === 0 && (!userProfile?.images || userProfile.images.length === 0) && styles.mainPhotoSlot
+                    ]}
+                  >
+                    <Plus size={24} color={index === 0 && (!userProfile?.images || userProfile.images.length === 0) ? "#E94E87" : "#9CA3AF"} />
+                    <Text style={[
+                      styles.addPhotoText,
+                      index === 0 && (!userProfile?.images || userProfile.images.length === 0) && styles.mainPhotoText
+                    ]}>
+                      {index === 0 && (!userProfile?.images || userProfile.images.length === 0) ? 'Main Photo' : 'Add Photo'}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
               </View>
             </View>
             
@@ -723,11 +752,49 @@ const styles = StyleSheet.create({
   photosGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
+    justifyContent: 'space-between',
     gap: 12,
   },
+  photoSlot: {
+    width: '48%',
+    aspectRatio: 0.75,
+    borderRadius: 12,
+    overflow: 'hidden',
+    position: 'relative',
+    marginBottom: 12,
+  },
+  photoImage: {
+    width: '100%',
+    height: '100%',
+  },
+  removePhotoButton: {
+    position: 'absolute',
+    top: 8,
+    right: 8,
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  mainPhotoBadge: {
+    position: 'absolute',
+    bottom: 8,
+    left: 8,
+    backgroundColor: '#E94E87',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 8,
+  },
+  mainPhotoText: {
+    fontSize: 10,
+    fontFamily: 'Inter-Bold',
+    color: '#FFFFFF',
+  },
   addPhotoButton: {
-    width: 100,
-    height: 120,
+    width: '48%',
+    aspectRatio: 0.75,
     borderRadius: 12,
     backgroundColor: '#F3F4F6',
     borderWidth: 2,
@@ -736,11 +803,17 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     gap: 8,
+    marginBottom: 12,
+  },
+  mainPhotoSlot: {
+    borderColor: '#E94E87',
+    backgroundColor: '#FEF2F2',
   },
   addPhotoText: {
     fontSize: 12,
     color: '#9CA3AF',
     fontFamily: 'Inter-Medium',
+    textAlign: 'center',
   },
   bioInput: {
     backgroundColor: '#FFFFFF',
