@@ -10,7 +10,7 @@ export default function ConnectionsScreen() {
 
   const matches = [
     {
-      id: 1,
+      id: 'match-1',
       name: 'Sarah',
       age: 24,
       image: 'https://images.pexels.com/photos/1181686/pexels-photo-1181686.jpeg?auto=compress&cs=tinysrgb&w=400',
@@ -20,7 +20,7 @@ export default function ConnectionsScreen() {
       matchType: 'like'
     },
     {
-      id: 2,
+      id: 'match-2',
       name: 'Alex',
       age: 27,
       image: 'https://images.pexels.com/photos/1043471/pexels-photo-1043471.jpeg?auto=compress&cs=tinysrgb&w=400',
@@ -30,7 +30,7 @@ export default function ConnectionsScreen() {
       matchType: 'gift'
     },
     {
-      id: 3,
+      id: 'match-3',
       name: 'Maya',
       age: 26,
       image: 'https://images.pexels.com/photos/1130626/pexels-photo-1130626.jpeg?auto=compress&cs=tinysrgb&w=400',
@@ -43,7 +43,7 @@ export default function ConnectionsScreen() {
 
   const likes = [
     {
-      id: 4,
+      id: 'like-1',
       name: 'Jessica',
       age: 23,
       image: 'https://images.pexels.com/photos/1181424/pexels-photo-1181424.jpeg?auto=compress&cs=tinysrgb&w=400',
@@ -51,7 +51,7 @@ export default function ConnectionsScreen() {
       time: '5m ago'
     },
     {
-      id: 5,
+      id: 'like-2',
       name: 'David',
       age: 29,
       image: 'https://images.pexels.com/photos/1222271/pexels-photo-1222271.jpeg?auto=compress&cs=tinysrgb&w=400',
@@ -59,7 +59,7 @@ export default function ConnectionsScreen() {
       time: '1h ago'
     },
     {
-      id: 6,
+      id: 'like-3',
       name: 'Luna',
       age: 22,
       image: 'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?auto=compress&cs=tinysrgb&w=400',
@@ -67,7 +67,7 @@ export default function ConnectionsScreen() {
       time: '2h ago'
     },
     {
-      id: 7,
+      id: 'like-4',
       name: 'Marcus',
       age: 30,
       image: 'https://images.pexels.com/photos/614810/pexels-photo-614810.jpeg?auto=compress&cs=tinysrgb&w=400',
@@ -78,7 +78,7 @@ export default function ConnectionsScreen() {
 
   const gifts = [
     {
-      id: 8,
+      id: 'gift-1',
       name: 'Emma',
       age: 25,
       image: 'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?auto=compress&cs=tinysrgb&w=400',
@@ -89,7 +89,7 @@ export default function ConnectionsScreen() {
       status: 'pending'
     },
     {
-      id: 9,
+      id: 'gift-2',
       name: 'Oliver',
       age: 28,
       image: 'https://images.pexels.com/photos/1043471/pexels-photo-1043471.jpeg?auto=compress&cs=tinysrgb&w=400',
