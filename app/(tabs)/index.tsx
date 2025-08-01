@@ -286,7 +286,7 @@ export default function HomeScreen() {
         {currentIndex + 1 < profiles.length && (
           <View style={[styles.card, styles.nextCard]}>
             <Image
-              source={{ uri: profiles[currentIndex + 1].images[0] }}
+              source={{ uri: profiles[currentIndex + 1].images?.[0] || 'https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg' }}
               style={styles.cardImage}
             />
           </View>
@@ -308,7 +308,6 @@ export default function HomeScreen() {
           {...panResponder.panHandlers}
         >
           <TouchableOpacity onPress={openProfile} style={styles.cardTouchable}>
-            <Image
               source={{ uri: currentProfile.images[0] }}
               style={styles.cardImage}
             />
@@ -363,7 +362,7 @@ export default function HomeScreen() {
           {selectedProfile && (
             <ScrollView style={styles.modalContent}>
               <Image
-                source={{ uri: selectedProfile.images[0] }}
+                source={{ uri: selectedProfile.images?.[0] || 'https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg' }}
                 style={styles.modalImage}
               />
               
