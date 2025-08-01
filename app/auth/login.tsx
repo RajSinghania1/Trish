@@ -35,9 +35,8 @@ export default function Login() {
         return;
       }
 
-      // Login successful, navigate to main app
-      // Let the main index.tsx handle routing after auth state changes
-      router.replace('/');
+      // Login successful, navigate directly to main app
+      router.replace('/(tabs)');
     } catch (err) {
       setError('An unexpected error occurred. Please try again.');
       console.error('Login error:', err);

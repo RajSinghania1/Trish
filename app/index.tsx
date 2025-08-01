@@ -19,28 +19,26 @@ export default function Index() {
         .eq('id', session.user.id)
         .maybeSingle();
 
-      if (error || !profile) {
-        // No profile found, redirect to onboarding
-        router.replace('/onboarding/photo-upload');
+      if (error && error.code !== 'PGRST116') {
+        console.error('Error checking profile:', error);
+        // On error, go to main app with basic profile
+        await createBasicProfile(session.user.id);
+        router.replace('/(tabs)');
         return;
       }
 
-      // Check if profile is complete
-      const isComplete = profile.name && 
-                        profile.age && 
-                        profile.interests?.length >= 1 && 
-                        profile.images?.length >= 1;
-
-      if (isComplete) {
-        router.replace('/(tabs)');
-      } else {
-        // For demo purposes, create a basic profile and go to main app
+      if (!profile) {
+        // No profile found, create basic profile and go to main app
         await createBasicProfile(session.user.id);
         router.replace('/(tabs)');
+        return;
       }
+
+      // Profile exists, go to main app
+      router.replace('/(tabs)');
     } catch (error) {
       console.error('Error checking onboarding status:', error);
-      // Create basic profile and continue to main app
+      // On any error, create basic profile and continue to main app
       if (session?.user?.id) {
         await createBasicProfile(session.user.id);
       }

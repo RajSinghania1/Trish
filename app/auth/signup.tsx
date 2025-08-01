@@ -39,8 +39,8 @@ export default function Signup() {
       setError(error.message);
       setIsLoading(false);
     } else {
-      // Let the main index.tsx handle routing after auth state changes
-      router.replace('/');
+      // Navigate directly to main app after successful signup
+      router.replace('/(tabs)');
     }
   };
 
