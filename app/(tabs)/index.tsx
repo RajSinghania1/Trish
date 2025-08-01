@@ -308,6 +308,7 @@ export default function HomeScreen() {
           {...panResponder.panHandlers}
         >
           <TouchableOpacity onPress={openProfile} style={styles.cardTouchable}>
+            <Image
               source={{ uri: currentProfile.images[0] }}
               style={styles.cardImage}
             />
