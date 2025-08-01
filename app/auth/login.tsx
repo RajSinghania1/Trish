@@ -35,8 +35,8 @@ export default function Login() {
         return;
       }
 
-      // Login successful, navigate directly to main app
-      router.replace('/(tabs)');
+      // Login successful, check onboarding status via index
+      router.replace('/');
     } catch (err) {
       setError('An unexpected error occurred. Please try again.');
       console.error('Login error:', err);

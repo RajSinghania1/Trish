@@ -39,8 +39,8 @@ export default function Signup() {
       setError(error.message);
       setIsLoading(false);
     } else {
-      // Navigate directly to main app after successful signup
-      router.replace('/(tabs)');
+      // Navigate to onboarding after successful signup
+      router.replace('/onboarding/photo-upload');
     }
   };
 

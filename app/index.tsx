@@ -4,6 +4,7 @@ import { View, StyleSheet } from 'react-native';
 import { useAuth } from '@/contexts/AuthContext';
 import { Platform } from 'react-native';
 import { supabase } from '@/lib/supabase';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function Index() {
   const rootNavigationState = useRootNavigationState();
@@ -13,82 +14,49 @@ export default function Index() {
     if (!session?.user?.id) return;
 
     try {
+      // Check if user has completed onboarding
+      const onboardingComplete = await AsyncStorage.getItem('onboarding_complete');
+      
+      // Check if user has a complete profile
       const { data: profile, error } = await supabase
         .from('profiles')
-        .select('id, name, age, interests, images')
+        .select('*')
         .eq('id', session.user.id)
         .maybeSingle();
 
       if (error && error.code !== 'PGRST116') {
         console.error('Error checking profile:', error);
-        // On error, go to main app with basic profile
-        await createBasicProfile(session.user.id);
-        router.replace('/(tabs)');
+        // On error, start onboarding
+        router.replace('/onboarding/photo-upload');
         return;
       }
 
-      if (!profile) {
-        // No profile found, create basic profile and go to main app
-        await createBasicProfile(session.user.id);
-        router.replace('/(tabs)');
+      // If no profile exists or onboarding not complete, start onboarding
+      if (!profile || !onboardingComplete) {
+        router.replace('/onboarding/photo-upload');
         return;
       }
 
-      // Profile exists, go to main app
+      // Check if profile is complete (has required fields)
+      const isProfileComplete = profile.name && 
+                               profile.age && 
+                               profile.images && 
+                               profile.images.length >= 3 &&
+                               profile.interests && 
+                               profile.interests.length >= 5;
+
+      if (!isProfileComplete) {
+        // Profile incomplete, continue onboarding
+        router.replace('/onboarding/photo-upload');
+        return;
+      }
+
+      // Profile complete, go to main app
       router.replace('/(tabs)');
     } catch (error) {
       console.error('Error checking onboarding status:', error);
-      // On any error, create basic profile and continue to main app
-      if (session?.user?.id) {
-        await createBasicProfile(session.user.id);
-      }
-      router.replace('/(tabs)');
-    }
-  };
-
-  const createBasicProfile = async (userId: string) => {
-    try {
-      const defaultName = session?.user?.email?.split('@')[0]?.replace(/[^a-zA-Z0-9]/g, '') || 'User';
-      
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .upsert({
-          id: userId,
-          email: session?.user?.email || '',
-          name: defaultName,
-          age: 25,
-          location: 'New York, NY',
-          bio: 'Welcome to my profile!',
-          interests: ['Photography', 'Travel', 'Coffee'],
-          images: ['https://images.pexels.com/photos/1130626/pexels-photo-1130626.jpeg?auto=compress&cs=tinysrgb&w=400'],
-          superlikes_count: 5,
-        }, {
-          onConflict: 'id'
-        });
-
-      if (!profileError) {
-        // Create wallet with initial balance
-        await supabase
-          .from('wallets')
-          .upsert({
-            user_id: userId,
-            balance: 100
-          }, {
-            onConflict: 'user_id'
-          });
-
-        // Add welcome transaction
-        await supabase
-          .from('wallet_transactions')
-          .insert({
-            user_id: userId,
-            amount: 100,
-            description: 'Welcome bonus',
-            transaction_type: 'credit'
-          });
-      }
-    } catch (error) {
-      console.error('Error creating basic profile:', error);
+      // On any error, start onboarding to be safe
+      router.replace('/onboarding/photo-upload');
     }
   };
 
