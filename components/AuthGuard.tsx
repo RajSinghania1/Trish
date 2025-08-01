@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useRouter } from 'expo-router';
+import { router } from 'expo-router';
 import { useAuth } from '@/contexts/AuthContext';
 import { View, ActivityIndicator, StyleSheet } from 'react-native';
 
@@ -9,13 +9,12 @@ interface AuthGuardProps {
 
 export default function AuthGuard({ children }: AuthGuardProps) {
   const { session, loading } = useAuth();
-  const router = useRouter();
 
   useEffect(() => {
     if (!loading && !session) {
       router.replace('/auth');
     }
-  }, [session, loading, router]);
+  }, [session, loading]);
 
   if (loading) {
     return (
