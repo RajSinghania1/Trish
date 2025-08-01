@@ -61,17 +61,17 @@ export default function Index() {
   };
 
   useEffect(() => {
-    if (!loading) {
+    if (!loading && rootNavigationState?.key) {
       if (session) {
         checkOnboardingStatus();
       } else {
         router.replace('/splash');
       }
     }
-  }, [session, loading]);
+  }, [session, loading, rootNavigationState?.key]);
 
   // Show loading screen while checking auth state
-  if (loading) {
+  if (loading || !rootNavigationState?.key) {
     return <View style={styles.container} />;
   }
 
