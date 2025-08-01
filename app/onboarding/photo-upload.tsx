@@ -59,29 +59,44 @@ export default function PhotoUploadScreen() {
     }
 
     try {
+      // Request permissions first
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('Permission Required', 'We need access to your photo library to upload photos.');
+        return;
+      }
+
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
         allowsEditing: true,
         aspect: [3, 4],
         quality: 1,
+        allowsMultipleSelection: false,
       });
 
       if (!result.canceled && result.assets[0]) {
         setLoading(true);
-        const compressedUri = await compressImage(result.assets[0].uri);
+        try {
+          const compressedUri = await compressImage(result.assets[0].uri);
         
-        const newPhoto: Photo = {
-          id: Date.now().toString(),
-          uri: result.assets[0].uri,
-          compressed: compressedUri,
-        };
+          const newPhoto: Photo = {
+            id: Date.now().toString(),
+            uri: result.assets[0].uri,
+            compressed: compressedUri,
+          };
 
-        setPhotos(prev => [...prev, newPhoto]);
-        setLoading(false);
+          setPhotos(prev => [...prev, newPhoto]);
+        } catch (compressionError) {
+          console.error('Image compression failed:', compressionError);
+          Alert.alert('Error', 'Failed to process image. Please try again.');
+        } finally {
+          setLoading(false);
+        }
       }
     } catch (error) {
+      console.error('Image picker error:', error);
+      Alert.alert('Error', 'Failed to access photo library. Please check permissions and try again.');
       setLoading(false);
-      Alert.alert('Error', 'Failed to pick image. Please try again.');
     }
   };
 
